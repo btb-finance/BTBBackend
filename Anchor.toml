@@ -4,14 +4,14 @@
 resolution = true
 skip-lint = false
 
-[programs.localnet]
-btb_project = "Ch6gqgXUC7TsVroSGDF2pLfv4Bd4bM3cvpEJXZf3WYyC"
+[programs.devnet]
+btb_pda = "9biQAHwmNpe995VHh9K6KT43hxQY1gzy7UNs1a3irr7v"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
