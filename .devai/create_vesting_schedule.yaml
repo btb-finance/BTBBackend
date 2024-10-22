@@ -1,0 +1,9 @@
+name: create_vesting_schedule
+description: Create a new vesting schedule
+prompt: |
+  A new vesting schedule has been created with the following details:
+  - Total amount: {{amount}}
+  - Start date: {{start_date}}
+  - End date: {{end_date}}
+  - Vesting periods: {{periods}} 
+  Please summarize these details and provide any relevant advice for the user.

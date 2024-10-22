@@ -1,0 +1,7 @@
+name: get_vesting_info
+description: Retrieve vesting information
+prompt: |
+  Vesting information has been requested for the following schedule:
+  {{vesting_info}}
+  
+  Please format this information in a clear and concise manner for the user.

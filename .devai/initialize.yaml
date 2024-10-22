@@ -1,0 +1,5 @@
+name: initialize
+description: Initialize a new vesting account
+prompt: |
+  A new vesting account has been initialized. 
+  Please provide a brief welcome message and explanation of the vesting process.

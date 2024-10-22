@@ -1,0 +1,8 @@
+name: claim_vesting
+description: Claim vested tokens
+prompt: |
+  A vesting claim has been made. 
+  - Claimed amount: {{claimed_amount}}
+  - Remaining balance: {{remaining_balance}}
+  
+  Please provide a summary of this claim and any relevant information for the user.
