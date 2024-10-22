@@ -1,21 +1,18 @@
 [toolchain]
 
 [features]
-resolution = true
+seeds = false
 skip-lint = false
 
-[programs.localnet]
-btbdefipool = "22nJsqqdzzcKf1gLf4BBH4dw6pRWtdp4E4ndi6fweHY2"
-
 [programs.devnet]
-btbdefipool = "22nJsqqdzzcKf1gLf4BBH4dw6pRWtdp4E4ndi6fweHY2"
+newtoday4 = "C2yzwzE7V5dmhRaWmxjNbvtFDNanRjmPUcDtKo6n6kHY"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "devnet"
-wallet = "./id.json"
+wallet = "e7doByN6f3VyrV26aVA3TeNUuMFJ7w22sbUDaK3QNx3.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

@@ -1,17 +1,16 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { Btbdefipool } from "../target/types/btbdefipool";
+import { Test2 } from "../target/types/test2";
 
-describe("btbdefipool", () => {
+describe("test2", () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
-  const program = anchor.workspace.Btbdefipool as Program<Btbdefipool>;
+  const program = anchor.workspace.Test2 as Program<Test2>;
 
   it("Is initialized!", async () => {
     // Add your test here.
-    const text = "First Investor";
-    const tx = await program.methods.initialize(text).rpc();
+    const tx = await program.methods.initialize().rpc();
     console.log("Your transaction signature", tx);
   });
 });
