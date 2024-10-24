@@ -14,18 +14,25 @@ Instructions
 Build the Project
 To build the smart contract:
 
-anchor build
 
+```bash
+   anchor build
+   ```
 
 Deploy the Program
 To deploy to a Solana cluster:
 
 anchor deploy
+```bash
+   anchor deploy
+   ```
 
 Test the Program
 To run tests:
 
-anchor test
+```bash
+   anchor test
+   ```
 
 
 
