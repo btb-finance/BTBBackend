@@ -32,8 +32,11 @@ anchor test
 Functions
 
 Initialize Sale: Admin sets up the token sale with pricing, payment options, and team wallet
+
 Update Sale: Admin updates the sale’s active status.
+
 Update Token Status: Admin manages the activity status of each payment token.
+
 Buy Tokens: Users can purchase BTB tokens using available payment tokens.
 Directory Structure
 
