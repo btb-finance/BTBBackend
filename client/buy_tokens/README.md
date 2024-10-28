@@ -7,7 +7,7 @@ This project provides scripts for initializing and interacting with a BTB (Buy-t
 
 1. Initialize BTB Sale Account:
 ```bash
-npx tsx initialize.ts
+npx tsx buy_token.ts
 ```
 
 2. Buy BTB Tokens:

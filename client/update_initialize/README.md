@@ -5,7 +5,7 @@ This script initializes a BTB (Buy-to-Build) sale account on Solana devnet. It c
 
 ### How to Run
 ```bash
-npx tsx initialize.ts
+npx tsx update_initialize.ts
 ```
 
 ### Script Output
