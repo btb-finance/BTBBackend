@@ -1,0 +1,656 @@
+{
+  "address": "teyk2AYGjb6SGPtXxqr6EW1bqQNtthfjaQggMYDSSXv",
+  "metadata": {
+    "name": "pda_vesting",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "buy_token",
+      "discriminator": [
+        138,
+        127,
+        14,
+        91,
+        38,
+        87,
+        115,
+        105
+      ],
+      "accounts": [
+        {
+          "name": "btb_sale_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  116,
+                  98,
+                  45,
+                  115,
+                  97,
+                  108,
+                  101,
+                  45,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "btb_sale_account.owner_initialize_wallet",
+                "account": "InitializeDataAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_token_account",
+          "writable": true
+        },
+        {
+          "name": "owner_token_account",
+          "writable": true
+        },
+        {
+          "name": "btb_sale_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "btb_sale_account"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "btb_mint_account"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "user_btb_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "btb_mint_account"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "btb_mint_account"
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "token_type",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "btb_sale_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  116,
+                  98,
+                  45,
+                  115,
+                  97,
+                  108,
+                  101,
+                  45,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "btb_sale_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "btb_sale_account"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "btb_mint_account"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "btb_mint_account"
+        },
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        }
+      ],
+      "args": [
+        {
+          "name": "btb",
+          "type": "pubkey"
+        },
+        {
+          "name": "usdt",
+          "type": "pubkey"
+        },
+        {
+          "name": "usdc",
+          "type": "pubkey"
+        },
+        {
+          "name": "paypal_usd",
+          "type": "pubkey"
+        },
+        {
+          "name": "owner_token_receive_wallet",
+          "type": "pubkey"
+        },
+        {
+          "name": "btb_price",
+          "type": "u64"
+        },
+        {
+          "name": "vesting_price",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "update_initialize",
+      "discriminator": [
+        112,
+        141,
+        196,
+        139,
+        210,
+        136,
+        62,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "btb_sale_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  116,
+                  98,
+                  45,
+                  115,
+                  97,
+                  108,
+                  101,
+                  45,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "btb",
+          "type": "pubkey"
+        },
+        {
+          "name": "usdt",
+          "type": "pubkey"
+        },
+        {
+          "name": "usdc",
+          "type": "pubkey"
+        },
+        {
+          "name": "paypal_usd",
+          "type": "pubkey"
+        },
+        {
+          "name": "owner_token_receive_wallet",
+          "type": "pubkey"
+        },
+        {
+          "name": "btb_price",
+          "type": "u64"
+        },
+        {
+          "name": "vesting_price",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "InitializeDataAccount",
+      "discriminator": [
+        249,
+        158,
+        124,
+        146,
+        142,
+        186,
+        207,
+        63
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized: Only owner can perform this action"
+    },
+    {
+      "code": 6001,
+      "name": "ZeroBTBPrice",
+      "msg": "BTB price must be greater than 0"
+    },
+    {
+      "code": 6002,
+      "name": "ZeroVestingPrice",
+      "msg": "Vesting price must be greater than 0"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidTokenType",
+      "msg": "Invalid token type selected"
+    },
+    {
+      "code": 6004,
+      "name": "CalculationError",
+      "msg": "Calculation overflow occurred"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidTokenMint",
+      "msg": "Invalid token mint address"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidAmount",
+      "msg": "Amount must be greater than zero"
+    },
+    {
+      "code": 6007,
+      "name": "AmountTooSmall",
+      "msg": "Amount is too small. Minimum amount is 0.001 tokens"
+    },
+    {
+      "code": 6008,
+      "name": "AmountTooLarge",
+      "msg": "Amount exceeds maximum limit"
+    }
+  ],
+  "types": [
+    {
+      "name": "InitializeDataAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "btb",
+            "type": "pubkey"
+          },
+          {
+            "name": "usdt",
+            "type": "pubkey"
+          },
+          {
+            "name": "usdc",
+            "type": "pubkey"
+          },
+          {
+            "name": "paypal_usd",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner_token_receive_wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner_initialize_wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "btb_price",
+            "type": "u64"
+          },
+          {
+            "name": "vesting_price",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}
