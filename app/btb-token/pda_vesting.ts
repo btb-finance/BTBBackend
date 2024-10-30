@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/pda_vesting.json`.
  */
 export type PdaVesting = {
-  "address": "teyk2AYGjb6SGPtXxqr6EW1bqQNtthfjaQggMYDSSXv",
+  "address": "aaUSJAx9C6W8nQqdX1H4YibzBh17tXA8JZnuRqj8ukZ",
   "metadata": {
     "name": "pdaVesting",
     "version": "0.1.0",

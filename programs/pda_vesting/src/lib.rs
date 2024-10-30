@@ -4,7 +4,7 @@ use anchor_spl::{
     associated_token::AssociatedToken
 };
 
-declare_id!("teyk2AYGjb6SGPtXxqr6EW1bqQNtthfjaQggMYDSSXv");
+declare_id!("aaUSJAx9C6W8nQqdX1H4YibzBh17tXA8JZnuRqj8ukZ");
 
 #[program]
 pub mod pda_vesting {
@@ -63,28 +63,26 @@ pub mod pda_vesting {
 
 
     pub fn buy_token(ctx: Context<BuyToken>, amount: u64, token_type: u8) -> Result<()> {
-        // Amount validation
         require!(amount > 0, CustomError::InvalidAmount);
-        // Token type validation
         require!(token_type >= 1 && token_type <= 3, CustomError::InvalidTokenType);
         
         let btb_sale_account = &ctx.accounts.btb_sale_account;
         
-        // Calculate payment amount
         let stored_price = btb_sale_account.btb_price;
-        let payment_amount = (amount as u128)
-            .checked_mul(stored_price as u128)
+    
+        // Calculate BTB tokens to send to user
+        let btb_amount = (amount as u128)
+            .checked_mul(1_000_000_000)  
             .ok_or(CustomError::CalculationError)?
-            .checked_div(1_000)
+            .checked_div(stored_price as u128)  
             .ok_or(CustomError::CalculationError)? as u64;
+    
         
-        // Add minimum amount check if needed
         require!(
-            payment_amount >= 1_000, // Minimum 0.001 USDT/USDC/PayPal (6 decimals)
+            amount >= 1_000, 
             CustomError::AmountTooSmall
         );
         
-        // Verify token type and mint
         let expected_mint = match token_type {
             1 => btb_sale_account.usdt,
             2 => btb_sale_account.usdc,
@@ -97,7 +95,6 @@ pub mod pda_vesting {
             CustomError::InvalidTokenMint
         );
     
-        // Transfer payment tokens from user to owner
         token::transfer(
             CpiContext::new(
                 ctx.accounts.token_program.to_account_info(),
@@ -107,7 +104,7 @@ pub mod pda_vesting {
                     authority: ctx.accounts.user.to_account_info(),
                 },
             ),
-            payment_amount,  // Changed from total_price to payment_amount
+            amount,
         )?;
         
         // Transfer BTB tokens to user
@@ -125,7 +122,7 @@ pub mod pda_vesting {
                     &[ctx.bumps.btb_sale_account],
                 ]],
             ),
-            amount,
+            btb_amount,  // Changed from amount to btb_amount
         )?;
         
         Ok(())

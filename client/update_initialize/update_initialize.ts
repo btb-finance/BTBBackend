@@ -40,7 +40,7 @@ async function main() {
     console.log("BTB Sale Account (PDA):", btbSaleAccount.toString());
 
     // BTB token mint address on devnet
-    const btbMint = new web3.PublicKey("btbjSLvBfKFf94VTYbze6TtCXYaeBgCadTcLfvoZp9d");
+    const btbMint = new web3.PublicKey("btbVv5dmAjutpRRSr6DKwBPyPyfKiJw4eXU11BPuTCK");
 
     // Create associated token account for PDA to hold BTB tokens
     const btbSaleTokenAccount = await getAssociatedTokenAddress(btbMint, btbSaleAccount, true);
@@ -49,17 +49,17 @@ async function main() {
     console.log("BTB Sale Token Account:", btbSaleTokenAccount.toString());
 
     // Define addresses for supported payment tokens on devnet
-    const btb = new web3.PublicKey("btbjSLvBfKFf94VTYbze6TtCXYaeBgCadTcLfvoZp9d");      // BTB
-    const usdt = new web3.PublicKey("usddpqpxr3LAu2HL95YJ4JJ4LFGFumAv7iaUhHYbmiQ");      // USDT
-    const usdc = new web3.PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");      // USDC
-    const paypal_usd = new web3.PublicKey("2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo"); // PayPal USD
+    const btb = new web3.PublicKey("btbVv5dmAjutpRRSr6DKwBPyPyfKiJw4eXU11BPuTCK");      // BTB
+    const usdt = new web3.PublicKey("utK7s5CmT6vvkd3JpTg5CfMaqAS8uVMwnqZjPZvcLkD");      // USDT
+    const usdc = new web3.PublicKey("ucKymLwwPxrPaUDMtYGx5uoho91SfE3Qs2VuXf9dDZB");      // USDC
+    const paypal_usd = new web3.PublicKey("pa3x7zKXd2yvPNM8NxJUp1tu1j8xeXyRb6Y65yqPvtQ"); // PayPal USD
 
     // Wallet that will receive tokens
     const owner_token_receive_wallet = new web3.PublicKey("te6eqhHuXFuhP1bjBfPs17VS84dR1M725FR9txASuCS");
 
     // Set BTB token and vesting prices
-    const btb_price = new BN(2.02);      // BTB token price
-    const vesting_price = new BN(6.01);   // Vesting price
+    const btb_price = new BN(0.001 * 1_000_000);      // BTB token price
+    const vesting_price = new BN(8.08);   // Vesting price
 
     try {
         // Initialize the BTB sale program with configuration

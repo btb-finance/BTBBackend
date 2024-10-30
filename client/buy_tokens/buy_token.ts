@@ -31,11 +31,11 @@ const program = new Program<PdaVesting>(idlString, provider);
 
 async function main() {
     // Token addresses
-    const btbMint = new web3.PublicKey("btbjSLvBfKFf94VTYbze6TtCXYaeBgCadTcLfvoZp9d");
-    const usdtMint = new web3.PublicKey("usddpqpxr3LAu2HL95YJ4JJ4LFGFumAv7iaUhHYbmiQ");
+    const btbMint = new web3.PublicKey("btbVv5dmAjutpRRSr6DKwBPyPyfKiJw4eXU11BPuTCK");
+    const usdtMint = new web3.PublicKey("utK7s5CmT6vvkd3JpTg5CfMaqAS8uVMwnqZjPZvcLkD");
     
     // Owner's initialize wallet (from your initialized state)
-    const ownerInitializeWallet = new web3.PublicKey("sibxc42SdHMtovWeFzHihDMyENg9Dzf3vLWjxpt1xHo");
+    const ownerInitializeWallet = new web3.PublicKey("kk4JSSv7f5GX3ePkB9GKvTEP1n59ZrX1oVxLtXuodC4");
     
     // Derive PDA for BTB sale account
     const [btbSaleAccount] = await web3.PublicKey.findProgramAddress(
