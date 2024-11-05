@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-btb_project = "Ch6gqgXUC7TsVroSGDF2pLfv4Bd4bM3cvpEJXZf3WYyC"
+btb_project = "4LiZrdCVJueFWYwdoiFmPqs9qKPTbFTChfKnEfcAGxBk"
 
 [registry]
 url = "https://api.apr.dev"
