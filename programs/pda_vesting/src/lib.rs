@@ -19,7 +19,6 @@ pub mod pda_vesting {
         btb_price: u64, 
         vesting_price: u64
     ) -> Result<()> {
-
         require!(btb_price > 0, CustomError::ZeroBTBPrice);
         require!(vesting_price > 0, CustomError::ZeroVestingPrice);
         
@@ -32,6 +31,58 @@ pub mod pda_vesting {
         sale_account.owner_initialize_wallet = ctx.accounts.signer.key();
         sale_account.btb_price = btb_price;
         sale_account.vesting_price = vesting_price;
+        sale_account.is_sale_active = true; // Sale active by default
+        Ok(())
+    }
+
+    pub fn toggle_sale(ctx: Context<UpdateData>) -> Result<()> {
+        let sale_account = &mut ctx.accounts.btb_sale_account;
+        
+        // Only owner can toggle sale status
+        require!(
+            ctx.accounts.signer.key() == sale_account.owner_initialize_wallet,
+            CustomError::Unauthorized
+        );
+        
+        // Toggle the sale status
+        sale_account.is_sale_active = !sale_account.is_sale_active;
+        
+        Ok(())
+    }
+
+    pub fn emergency_withdraw(ctx: Context<EmergencyWithdraw>) -> Result<()> {
+        let btb_sale_account = &ctx.accounts.btb_sale_account;
+        
+        // Only owner can withdraw
+        require!(
+            ctx.accounts.signer.key() == btb_sale_account.owner_initialize_wallet,
+            CustomError::Unauthorized
+        );
+        
+        // Get the current balance of BTB tokens in sale account
+        let balance = ctx.accounts.btb_sale_token_account.amount;
+        
+        // If balance is 0, return early
+        require!(balance > 0, CustomError::NoTokensToWithdraw);
+
+        // Transfer all BTB tokens to owner's wallet
+        token::transfer(
+            CpiContext::new_with_signer(
+                ctx.accounts.token_program.to_account_info(),
+                token::Transfer {
+                    from: ctx.accounts.btb_sale_token_account.to_account_info(),
+                    to: ctx.accounts.owner_btb_account.to_account_info(),
+                    authority: ctx.accounts.btb_sale_account.to_account_info(),
+                },
+                &[&[
+                    b"btb-sale-account",
+                    btb_sale_account.owner_initialize_wallet.as_ref(),
+                    &[ctx.bumps.btb_sale_account],
+                ]],
+            ),
+            balance, // Transfer full balance
+        )?;
+        
         Ok(())
     }
 
@@ -44,7 +95,6 @@ pub mod pda_vesting {
          btb_price: u64,
          vesting_price: u64
         ) -> Result<()> {
-
         require!(btb_price > 0, CustomError::ZeroBTBPrice);
         require!(vesting_price > 0, CustomError::ZeroVestingPrice);
 
@@ -61,8 +111,13 @@ pub mod pda_vesting {
         Ok(())
     }
 
-
     pub fn buy_token(ctx: Context<BuyToken>, amount: u64, token_type: u8) -> Result<()> {
+        // Check if sale is active
+        require!(
+            ctx.accounts.btb_sale_account.is_sale_active,
+            CustomError::SaleNotActive
+        );
+
         require!(amount > 0, CustomError::InvalidAmount);
         require!(token_type >= 1 && token_type <= 3, CustomError::InvalidTokenType);
         
@@ -77,7 +132,6 @@ pub mod pda_vesting {
             .checked_div(stored_price as u128)  
             .ok_or(CustomError::CalculationError)? as u64;
     
-        
         require!(
             amount >= 1_000, 
             CustomError::AmountTooSmall
@@ -107,7 +161,6 @@ pub mod pda_vesting {
             amount,
         )?;
         
-        // Transfer BTB tokens to user
         token::transfer(
             CpiContext::new_with_signer(
                 ctx.accounts.token_program.to_account_info(),
@@ -122,17 +175,16 @@ pub mod pda_vesting {
                     &[ctx.bumps.btb_sale_account],
                 ]],
             ),
-            btb_amount,  // Changed from amount to btb_amount
+            btb_amount,
         )?;
         
         Ok(())
     }
-    
 }
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
-    #[account(init, payer = signer, space = 8 + 32 * 6 + 8 * 2,   
+    #[account(init, payer = signer, space = 8 + 32 * 6 + 8 * 2 + 1,  // Added 1 for bool
               seeds = [b"btb-sale-account", signer.key().as_ref()], bump)]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
     
@@ -149,6 +201,33 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
+pub struct EmergencyWithdraw<'info> {
+    #[account(seeds = [b"btb-sale-account", btb_sale_account.owner_initialize_wallet.as_ref()], bump)]
+    pub btb_sale_account: Account<'info, InitializeDataAccount>,
+    
+    #[account(
+        mut,
+        associated_token::mint = btb_mint_account,
+        associated_token::authority = btb_sale_account
+    )]
+    pub btb_sale_token_account: Account<'info, TokenAccount>,
+    
+    #[account(
+        mut,
+        constraint = owner_btb_account.mint == btb_mint_account.key(),
+        constraint = owner_btb_account.owner == signer.key()
+    )]
+    pub owner_btb_account: Account<'info, TokenAccount>,
+    
+    pub btb_mint_account: Account<'info, Mint>,
+    
+    #[account(mut)]
+    pub signer: Signer<'info>,
+    pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
 pub struct UpdateData<'info> {
     #[account(mut, seeds = [b"btb-sale-account", signer.key().as_ref()], bump)]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
@@ -156,7 +235,6 @@ pub struct UpdateData<'info> {
     pub signer: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
-
 
 #[derive(Accounts)]
 pub struct BuyToken<'info> {
@@ -208,8 +286,8 @@ pub struct InitializeDataAccount {
     pub owner_initialize_wallet: Pubkey,
     pub btb_price: u64,
     pub vesting_price: u64,
+    pub is_sale_active: bool,
 }
-
 
 #[error_code]
 pub enum CustomError {
@@ -239,4 +317,10 @@ pub enum CustomError {
     
     #[msg("Amount exceeds maximum limit")]
     AmountTooLarge,
+
+    #[msg("Sale is not currently active")]
+    SaleNotActive,
+
+    #[msg("No tokens available to withdraw")]
+    NoTokensToWithdraw,
 }
