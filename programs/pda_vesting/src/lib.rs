@@ -35,6 +35,23 @@ pub mod pda_vesting {
         Ok(())
     }
 
+    pub fn transfer_admin(ctx: Context<TransferAdmin>, new_admin: Pubkey) -> Result<()> {
+        require!(new_admin != Pubkey::default(), CustomError::InvalidNewAdmin);
+        
+        let sale_account = &mut ctx.accounts.btb_sale_account;
+        
+        // Verify current signer is the admin
+        require!(
+            ctx.accounts.signer.key() == sale_account.owner_initialize_wallet,
+            CustomError::Unauthorized
+        );
+    
+        // Update the admin
+        sale_account.owner_initialize_wallet = new_admin;
+        
+        Ok(())
+    }
+
     pub fn toggle_sale(ctx: Context<UpdateData>) -> Result<()> {
         let sale_account = &mut ctx.accounts.btb_sale_account;
         
@@ -201,6 +218,21 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
+pub struct TransferAdmin<'info> {
+    #[account(
+        mut,
+        seeds = [b"btb-sale-account", signer.key().as_ref()],
+        bump
+    )]
+    pub btb_sale_account: Account<'info, InitializeDataAccount>,
+    
+    #[account(mut)]
+    pub signer: Signer<'info>,
+    
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
 pub struct EmergencyWithdraw<'info> {
     #[account(seeds = [b"btb-sale-account", btb_sale_account.owner_initialize_wallet.as_ref()], bump)]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
@@ -323,4 +355,7 @@ pub enum CustomError {
 
     #[msg("No tokens available to withdraw")]
     NoTokensToWithdraw,
+
+    #[msg("Cannot transfer admin to zero address")]
+    InvalidNewAdmin,
 }
