@@ -5,7 +5,7 @@ use anchor_spl::{
 };
 
 use crate::error::CustomError;
-use crate::InitializeDataAccount::InitializeDataAccount;
+use crate::initialize_data_account::InitializeDataAccount;
 
 pub fn process_initialize(ctx: Context<Initialize>, 
     btb: Pubkey,

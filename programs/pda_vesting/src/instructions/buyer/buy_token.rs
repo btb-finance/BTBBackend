@@ -5,7 +5,7 @@ use anchor_spl::{
 };
 
 use crate::error::CustomError;
-use crate::InitializeDataAccount::InitializeDataAccount;
+use crate::initialize_data_account::InitializeDataAccount;
 
 pub fn process_buy_token(ctx: Context<BuyToken>, amount: u64, token_type: u8) -> Result<()> {
     require!(amount > 0, CustomError::InvalidAmount);

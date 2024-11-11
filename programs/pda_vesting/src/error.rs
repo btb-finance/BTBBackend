@@ -28,4 +28,11 @@ pub enum CustomError {
     
     #[msg("Amount exceeds maximum limit")]
     AmountTooLarge,
+
+    #[msg("Claiming is not available yet.")]
+    ClaimNotAvailableYet,
+
+    #[msg("There is nothing to claim.")]
+    NothingToClaim,
+
 }
