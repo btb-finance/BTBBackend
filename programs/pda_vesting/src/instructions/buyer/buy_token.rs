@@ -8,6 +8,13 @@ use crate::error::CustomError;
 use crate::initialize_data_account::InitializeDataAccount;
 
 pub fn process_buy_token(ctx: Context<BuyToken>, amount: u64, token_type: u8) -> Result<()> {
+    
+    // Check if sale is active
+    require!(
+        ctx.accounts.btb_sale_account.is_sale_active,
+        CustomError::SaleNotActive
+    );
+
     require!(amount > 0, CustomError::InvalidAmount);
     require!(token_type >= 1 && token_type <= 3, CustomError::InvalidTokenType);
     

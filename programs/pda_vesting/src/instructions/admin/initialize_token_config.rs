@@ -29,12 +29,13 @@ pub fn process_initialize(ctx: Context<Initialize>,
     sale_account.owner_initialize_wallet = ctx.accounts.signer.key();
     sale_account.btb_price = btb_price;
     sale_account.vesting_price = vesting_price;
+    sale_account.is_sale_active = true; // Sale active by default
     Ok(())
 }
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
-    #[account(init, payer = signer, space = 8 + 32 * 6 + 8 * 2,   
+    #[account(init, payer = signer, space = 8 + 32 * 6 + 8 * 2 + 1,   
               seeds = [b"btb-sale-account", signer.key().as_ref()], bump)]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
     

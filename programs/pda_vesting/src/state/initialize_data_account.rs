@@ -11,4 +11,5 @@ pub struct InitializeDataAccount {
     pub owner_initialize_wallet: Pubkey,
     pub btb_price: u64,
     pub vesting_price: u64,
+    pub is_sale_active: bool,
 }

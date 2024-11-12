@@ -35,4 +35,13 @@ pub enum CustomError {
     #[msg("There is nothing to claim.")]
     NothingToClaim,
 
+    #[msg("Cannot transfer admin to zero address")]
+    InvalidNewAdmin,
+
+    #[msg("Sale is not currently active")]
+    SaleNotActive,
+
+    #[msg("No tokens available to withdraw")]
+    NoTokensToWithdraw,
+
 }

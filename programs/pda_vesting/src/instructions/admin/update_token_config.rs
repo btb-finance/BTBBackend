@@ -6,6 +6,7 @@ use anchor_spl::{
 
 use crate::error::CustomError;
 use crate::initialize_data_account::InitializeDataAccount;
+use crate::update_data::UpdateData;
 
 pub fn process_update_initialize(ctx: Context<UpdateData>,
     btb: Pubkey,
@@ -33,12 +34,3 @@ pub fn process_update_initialize(ctx: Context<UpdateData>,
    Ok(())
 }
 
-
-#[derive(Accounts)]
-pub struct UpdateData<'info> {
-    #[account(mut, seeds = [b"btb-sale-account", signer.key().as_ref()], bump)]
-    pub btb_sale_account: Account<'info, InitializeDataAccount>,
-    #[account(mut)]
-    pub signer: Signer<'info>,
-    pub system_program: Program<'info, System>,
-}

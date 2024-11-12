@@ -41,6 +41,9 @@ pub mod pda_vesting {
         process_buy_token(ctx, amount, token_type)
     }
     
+    pub fn transfer_admin(ctx: Context<TransferAdmin>, new_admin: Pubkey) -> Result<()> {
+        transfer_admin(ctx, new_admin)
+    }
 }
 
 
