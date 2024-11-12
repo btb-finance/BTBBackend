@@ -1,6 +1,11 @@
-use crate::state::BTBVestingAccount
+use anchor_lang::prelude::*;
+use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token_interface::{ self, Mint, TokenAccount, TokenInterface, TransferChecked };
 
-pub mod buy_at_vesting{
+use crate::btb_vesting_account::BTBVestingAccount;
+use crate::user_vesting_account::UserVestingAccount;
+use crate::claim_tokens::ClaimTokens;
+use crate::error::CustomError;
 
     pub fn create_user_vesting(
         ctx: Context<UserAccountDetail>,
@@ -17,7 +22,7 @@ pub mod buy_at_vesting{
             total_withdrawn: 0,
             cliff_time,
             vesting_account: ctx.accounts.vesting_account.key(),
-            bump: ctx.bumps.employee_account,
+            bump: ctx.bumps.user_account,
         };
 
         Ok(())
@@ -29,30 +34,30 @@ pub mod buy_at_vesting{
         let now = Clock::get()?.unix_timestamp;
 
         // Check if the current time is before the cliff time
-        if now < employee_account.cliff_time {
-            return Err(ErrorCode::ClaimNotAvailableYet.into());
+        if now < user_account.cliff_time {
+            return Err(CustomError::ClaimNotAvailableYet.into());
         }
         // Calculate the vested amount
-        let time_since_start = now.saturating_sub(employee_account.start_time);
-        let total_vesting_time = employee_account.end_time.saturating_sub(
-            employee_account.start_time
+        let time_since_start = now.saturating_sub(user_account.start_time);
+        let total_vesting_time = user_account.end_time.saturating_sub(
+            user_account.start_time
         );
-        let vested_amount = if now >= employee_account.end_time {
-            employee_account.total_amount
+        let vested_amount = if now >= user_account.end_time {
+            user_account.total_amount
         } else {
-            (employee_account.total_amount * time_since_start) / total_vesting_time
+            (user_account.total_amount * time_since_start) / total_vesting_time
         };
 
         //Calculate the amount that can be withdrawn
-        let claimable_amount = vested_amount.saturating_sub(employee_account.total_withdrawn);
+        let claimable_amount = vested_amount.saturating_sub(user_account.total_withdrawn);
         // Check if there is anything left to claim
         if claimable_amount == 0 {
-            return Err(ErrorCode::NothingToClaim.into());
+            return Err(CustomError::NothingToClaim.into());
         }
         let transfer_cpi_accounts = TransferChecked {
             from: ctx.accounts.treasury_token_account.to_account_info(),
             mint: ctx.accounts.mint.to_account_info(),
-            to: ctx.accounts.employee_token_account.to_account_info(),
+            to: ctx.accounts.user_token_account.to_account_info(),
             authority: ctx.accounts.treasury_token_account.to_account_info(),
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
@@ -68,7 +73,7 @@ pub mod buy_at_vesting{
         );
         let decimals = ctx.accounts.mint.decimals;
         token_interface::transfer_checked(cpi_context, claimable_amount as u64, decimals)?;
-        employee_account.total_withdrawn += claimable_amount;
+        user_account.total_withdrawn += claimable_amount;
         Ok(())
     }
 
@@ -91,4 +96,3 @@ pub mod buy_at_vesting{
         pub system_program: Program<'info, System>,
     }
     
-}
