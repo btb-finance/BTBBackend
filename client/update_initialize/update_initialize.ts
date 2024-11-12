@@ -100,6 +100,9 @@ async function main() {
         console.log("Vesting Price (raw):", accountInfo.vestingPrice.toString());
         console.log("Vesting Price (formatted):", accountInfo.vestingPrice.toNumber() / 1_000_000, "USDT");
 
+        console.log("\nSales:");
+        console.log("Sales Status :", accountInfo.isSaleActive.toString());
+
 
     } catch (error) {
         console.error("Error during initialization:", error);

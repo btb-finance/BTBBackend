@@ -103,6 +103,10 @@ async function main() {
         console.log("BTB Price (formatted):", accountInfo.btbPrice.toNumber() / 1_000_000, "USDT");
         console.log("Vesting Price (raw):", accountInfo.vestingPrice.toString());
         console.log("Vesting Price (formatted):", accountInfo.vestingPrice.toNumber() / 1_000_000, "USDT");
+
+        console.log("\nSales:");
+        console.log("Sales Status (raw):", accountInfo.isSaleActive.toString());
+        
         
         
     } catch (error) {
