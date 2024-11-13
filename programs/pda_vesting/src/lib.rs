@@ -4,7 +4,7 @@ use anchor_spl::{
     associated_token::AssociatedToken
 };
 
-declare_id!("nnqbjAsZfkFfzYGDo4EBxpFTHgcbjG96u8nNCgPEg4v");
+declare_id!("ffa9d9U5PtPvnQRWmZspCpXxAmMNanWtTpQWbeTRVW9");
 
 #[program]
 pub mod pda_vesting {
@@ -55,13 +55,11 @@ pub mod pda_vesting {
     pub fn toggle_sale(ctx: Context<UpdateData>) -> Result<()> {
         let sale_account = &mut ctx.accounts.btb_sale_account;
         
-        // Only owner can toggle sale status
         require!(
             ctx.accounts.signer.key() == sale_account.owner_initialize_wallet,
             CustomError::Unauthorized
         );
         
-        // Toggle the sale status
         sale_account.is_sale_active = !sale_account.is_sale_active;
         
         Ok(())
@@ -70,19 +68,15 @@ pub mod pda_vesting {
     pub fn emergency_withdraw(ctx: Context<EmergencyWithdraw>) -> Result<()> {
         let btb_sale_account = &ctx.accounts.btb_sale_account;
         
-        // Only owner can withdraw
         require!(
             ctx.accounts.signer.key() == btb_sale_account.owner_initialize_wallet,
             CustomError::Unauthorized
         );
         
-        // Get the current balance of BTB tokens in sale account
         let balance = ctx.accounts.btb_sale_token_account.amount;
         
-        // If balance is 0, return early
         require!(balance > 0, CustomError::NoTokensToWithdraw);
 
-        // Transfer all BTB tokens to owner's wallet
         token::transfer(
             CpiContext::new_with_signer(
                 ctx.accounts.token_program.to_account_info(),
@@ -97,7 +91,7 @@ pub mod pda_vesting {
                     &[ctx.bumps.btb_sale_account],
                 ]],
             ),
-            balance, // Transfer full balance
+            balance,
         )?;
         
         Ok(())
@@ -129,7 +123,6 @@ pub mod pda_vesting {
     }
 
     pub fn buy_token(ctx: Context<BuyToken>, amount: u64, token_type: u8) -> Result<()> {
-        // Check if sale is active
         require!(
             ctx.accounts.btb_sale_account.is_sale_active,
             CustomError::SaleNotActive
@@ -142,7 +135,6 @@ pub mod pda_vesting {
         
         let stored_price = btb_sale_account.btb_price;
     
-        // Calculate BTB tokens to send to user
         let btb_amount = (amount as u128)
             .checked_mul(1_000_000_000)  
             .ok_or(CustomError::CalculationError)?
@@ -188,7 +180,7 @@ pub mod pda_vesting {
                 },
                 &[&[
                     b"btb-sale-account",
-                    btb_sale_account.owner_initialize_wallet.as_ref(),  
+                    btb_sale_account.owner_initialize_wallet.as_ref(),
                     &[ctx.bumps.btb_sale_account],
                 ]],
             ),
@@ -201,13 +193,21 @@ pub mod pda_vesting {
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
-    #[account(init, payer = signer, space = 8 + 32 * 6 + 8 * 2 + 1,  // Added 1 for bool
-              seeds = [b"btb-sale-account", signer.key().as_ref()], bump)]
+    #[account(
+        init,
+        payer = signer,
+        space = 8 + 32 * 6 + 8 * 2 + 1,
+        seeds = [b"btb-sale-account", signer.key().as_ref()],
+        bump
+    )]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
     
-    #[account(init, payer = signer, 
-              associated_token::mint = btb_mint_account,
-              associated_token::authority = btb_sale_account)]
+    #[account(
+        init,
+        payer = signer, 
+        associated_token::mint = btb_mint_account,
+        associated_token::authority = btb_sale_account
+    )]
     pub btb_sale_token_account: Account<'info, TokenAccount>,
     pub btb_mint_account: Account<'info, Mint>,
     #[account(mut)]
@@ -221,7 +221,7 @@ pub struct Initialize<'info> {
 pub struct TransferAdmin<'info> {
     #[account(
         mut,
-        seeds = [b"btb-sale-account", signer.key().as_ref()],
+        seeds = [b"btb-sale-account", btb_sale_account.owner_initialize_wallet.as_ref()],
         bump
     )]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
@@ -234,7 +234,10 @@ pub struct TransferAdmin<'info> {
 
 #[derive(Accounts)]
 pub struct EmergencyWithdraw<'info> {
-    #[account(seeds = [b"btb-sale-account", btb_sale_account.owner_initialize_wallet.as_ref()], bump)]
+    #[account(
+        seeds = [b"btb-sale-account", btb_sale_account.owner_initialize_wallet.as_ref()],
+        bump
+    )]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
     
     #[account(
@@ -261,7 +264,11 @@ pub struct EmergencyWithdraw<'info> {
 
 #[derive(Accounts)]
 pub struct UpdateData<'info> {
-    #[account(mut, seeds = [b"btb-sale-account", signer.key().as_ref()], bump)]
+    #[account(
+        mut,
+        seeds = [b"btb-sale-account", btb_sale_account.owner_initialize_wallet.as_ref()],
+        bump
+    )]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
     #[account(mut)]
     pub signer: Signer<'info>,
@@ -270,7 +277,10 @@ pub struct UpdateData<'info> {
 
 #[derive(Accounts)]
 pub struct BuyToken<'info> {
-    #[account(seeds = [b"btb-sale-account", btb_sale_account.owner_initialize_wallet.as_ref()], bump)]
+    #[account(
+        seeds = [b"btb-sale-account", btb_sale_account.owner_initialize_wallet.as_ref()],
+        bump
+    )]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
     
     #[account(mut)]

@@ -15,7 +15,7 @@ export function loadWalletKey(keypairFile: string): web3.Keypair {
 const connection = new web3.Connection("https://api.devnet.solana.com");
 
 // Load current admin's keypair from wallet file
-const currentAdminKeypair = loadWalletKey("owner_signer_wallet.json");
+const currentAdminKeypair = loadWalletKey("ttZwVJp67UVCcDk7mAVzRVajEP2bozJJNUwQJ7KjEjN.json");
 
 // Create wallet instance from keypair
 const currentAdminWallet = new Wallet(currentAdminKeypair);
@@ -25,39 +25,56 @@ const provider = new AnchorProvider(connection, currentAdminWallet, {});
 setProvider(provider);
 
 // Parse IDL and create program instance
-const idlString = JSON.parse(JSON.stringify(idl));  
-const program = new Program<PdaVesting>(idlString, provider);
+const program = new Program<PdaVesting>(idl as Idl, provider);
 
-async function main() {
-    // Derive PDA for BTB sale account
-    const [btbSaleAccount] = await web3.PublicKey.findProgramAddress(
-        [Buffer.from("btb-sale-account"), currentAdminKeypair.publicKey.toBuffer()],
-        program.programId
+async function findInitializedAccount() {
+    // Get all program accounts
+    const accounts = await program.account.initializeDataAccount.all();
+    
+    // Find the account where the current wallet is the owner
+    const ourAccount = accounts.find(acc => 
+        acc.account.ownerInitializeWallet.equals(currentAdminKeypair.publicKey)
     );
     
-    // Log btbSaleAccount address
-    console.log("BTB Sale Account (PDA):", btbSaleAccount.toString());
+    if (!ourAccount) {
+        throw new Error("No initialized account found for this wallet");
+    }
+    
+    return ourAccount.publicKey;
+}
 
-    // New admin's public key
-    const newAdmin = new web3.PublicKey("ttZwVJp67UVCcDk7mAVzRVajEP2bozJJNUwQJ7KjEjN");
-
+async function main() {
     try {
+        // Find the currently initialized account
+        const btbSaleAccount = await findInitializedAccount();
+        console.log("Found initialized BTB Sale Account:", btbSaleAccount.toString());
+
+        // New admin's public key - replace with actual public key
+        const newAdmin = new web3.PublicKey("kk4JSSv7f5GX3ePkB9GKvTEP1n59ZrX1oVxLtXuodC4");
+
         // Execute transfer_admin instruction
         const tx = await program.methods.transferAdmin(newAdmin)
-        .accounts({
-            btbSaleAccount: btbSaleAccount,
-            signer: currentAdminWallet.publicKey,
-            systemProgram: web3.SystemProgram.programId,
-        })
-        .signers([currentAdminKeypair])
-        .rpc();
-       
+            .accounts({
+                btbSaleAccount: btbSaleAccount,
+                signer: currentAdminWallet.publicKey,
+                systemProgram: web3.SystemProgram.programId,
+            })
+            .signers([currentAdminKeypair])
+            .rpc();
+
         console.log("Admin transferred successfully. Transaction signature:", tx);
 
-        // Fetch and log updated account info
-        const accountInfo = await program.account.initializeDataAccount.fetch(btbSaleAccount);
-        console.log("New admin address:", accountInfo.ownerInitializeWallet.toString());
-        
+        // Wait for confirmation
+        await connection.confirmTransaction(tx);
+
+        // Try to fetch the updated account info
+        try {
+            const updatedAccountInfo = await program.account.initializeDataAccount.fetch(btbSaleAccount);
+            console.log("New admin address:", updatedAccountInfo.ownerInitializeWallet.toString());
+        } catch (e) {
+            console.log("Note: Account data fetch after transfer may fail - this is expected");
+        }
+
     } catch (error) {
         console.error("Error during admin transfer:", error);
     }
