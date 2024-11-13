@@ -27,7 +27,7 @@ pub fn transfer_admin(ctx: Context<TransferAdmin>, new_admin: Pubkey) -> Result<
     Ok(())
 }
 
-pub fn toggle_sale(ctx: Context<UpdateData>) -> Result<()> {
+pub fn process_toggle_sale(ctx: Context<UpdateData>) -> Result<()> {
     let sale_account = &mut ctx.accounts.btb_sale_account;
     
     // Only owner can toggle sale status
@@ -42,7 +42,7 @@ pub fn toggle_sale(ctx: Context<UpdateData>) -> Result<()> {
     Ok(())
 }
 
-pub fn emergency_withdraw(ctx: Context<EmergencyWithdraw>) -> Result<()> {
+pub fn process_emergency_withdraw(ctx: Context<EmergencyWithdraw>) -> Result<()> {
     let btb_sale_account = &ctx.accounts.btb_sale_account;
     
     // Only owner can withdraw

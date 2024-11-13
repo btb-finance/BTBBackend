@@ -6,7 +6,7 @@ mod instructions;
 mod state;
 
 
-declare_id!("aaUSJAx9C6W8nQqdX1H4YibzBh17tXA8JZnuRqj8ukZ");
+declare_id!("abcxGrLevAiSMXHnzaasyrKwU4D58w8Ab5KBA9fcrWj");
 
 #[program]
 pub mod pda_vesting {
@@ -41,8 +41,17 @@ pub mod pda_vesting {
         process_buy_token(ctx, amount, token_type)
     }
     
+    /*
     pub fn transfer_admin(ctx: Context<TransferAdmin>, new_admin: Pubkey) -> Result<()> {
         transfer_admin(ctx, new_admin)
+    }*/
+
+    pub fn toggle_sale(ctx: Context<UpdateData>) -> Result<()> {
+        process_toggle_sale(ctx)
+    }
+ 
+    pub fn emergency_withdraw(ctx: Context<EmergencyWithdraw>) -> Result<()> {
+        process_emergency_withdraw(ctx)
     }
 }
 

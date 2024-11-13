@@ -1,6 +1,9 @@
 
 cd BTBBackendV1/resources/
 
+# Create a new Keypair 
+`solana-keygen grind --starts-with  <custom starting letters like BTB>:<number of keys>`
+
 `solana config set --keypair BTBF9x3R2nnY1cvP32KPjeyE26XQV8z7Y86xtPydxaRk.json`
 
 `solana config set --url devnet`
@@ -39,3 +42,5 @@ some tokens ------
 # You can transfer token with the help of below command 
 
 `spl-token transfer mnti2XLiWJ2H2YaLdCDX3Js2c6AdCxZ2FMUuhV2abEy 10 (recipient wallet address) --fund-recipient`
+
+

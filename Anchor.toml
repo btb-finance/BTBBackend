@@ -5,13 +5,13 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-pda_vesting = "aaUSJAx9C6W8nQqdX1H4YibzBh17tXA8JZnuRqj8ukZ"
+pda_vesting = "abcxGrLevAiSMXHnzaasyrKwU4D58w8Ab5KBA9fcrWj"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
+cluster = "Devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
