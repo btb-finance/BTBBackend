@@ -16,9 +16,14 @@ pub fn process_initialize(ctx: Context<Initialize>,
     btb_price: u64, 
     vesting_price: u64
 ) -> Result<()> {
-
     require!(btb_price > 0, CustomError::ZeroBTBPrice);
     require!(vesting_price > 0, CustomError::ZeroVestingPrice);
+    
+    // Validate deployer/signer is program owner
+    require!(
+        ctx.accounts.signer.key() == *ctx.program_id,
+        CustomError::Unauthorized
+    );
     
     let sale_account = &mut ctx.accounts.btb_sale_account;
     sale_account.btb = btb;
@@ -29,14 +34,19 @@ pub fn process_initialize(ctx: Context<Initialize>,
     sale_account.owner_initialize_wallet = ctx.accounts.signer.key();
     sale_account.btb_price = btb_price;
     sale_account.vesting_price = vesting_price;
-    sale_account.is_sale_active = true; // Sale active by default
+    sale_account.is_sale_active = true;
     Ok(())
 }
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
-    #[account(init, payer = signer, space = 8 + 32 * 6 + 8 * 2 + 1,   
-              seeds = [b"btb-sale-account", signer.key().as_ref()], bump)]
+    #[account(
+        init, 
+        payer = signer, 
+        space = 8 + 32 * 6 + 8 * 2 + 1,   
+        seeds = [b"btb-sale-account", signer.key().as_ref()], 
+        bump
+    )]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
     
     #[account(init, payer = signer, 

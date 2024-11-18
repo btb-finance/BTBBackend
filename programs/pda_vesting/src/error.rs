@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum CustomError {
-    #[msg("Unauthorized: Only owner can perform this action")]
+    #[msg("Unauthorized: Only program owner/deployer can perform this action")]
     Unauthorized,
     
     #[msg("BTB price must be greater than 0")]
@@ -43,5 +43,4 @@ pub enum CustomError {
 
     #[msg("No tokens available to withdraw")]
     NoTokensToWithdraw,
-
 }
