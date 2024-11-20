@@ -1,10 +1,10 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, solana_program::bpf_loader_upgradeable};
 use anchor_spl::{
     token::{self, TokenAccount, Token, Mint},
     associated_token::AssociatedToken
 };
 
-declare_id!("ffa9d9U5PtPvnQRWmZspCpXxAmMNanWtTpQWbeTRVW9");
+declare_id!("kryDFGmTyAYxcBsJLjT9knXXgv8ExYbf5T3GAopdhCX");
 
 #[program]
 pub mod pda_vesting {
@@ -19,6 +19,10 @@ pub mod pda_vesting {
         btb_price: u64, 
         vesting_price: u64
     ) -> Result<()> {
+        let program_data = ctx.accounts.program_data.try_borrow_data()?;
+        let upgrade_authority = Pubkey::new_from_array(program_data[13..45].try_into().unwrap());
+        require!(ctx.accounts.signer.key() == upgrade_authority, CustomError::UnauthorizedDeployer);
+        
         require!(btb_price > 0, CustomError::ZeroBTBPrice);
         require!(vesting_price > 0, CustomError::ZeroVestingPrice);
         
@@ -31,50 +35,27 @@ pub mod pda_vesting {
         sale_account.owner_initialize_wallet = ctx.accounts.signer.key();
         sale_account.btb_price = btb_price;
         sale_account.vesting_price = vesting_price;
-        sale_account.is_sale_active = true; // Sale active by default
-        Ok(())
-    }
-
-    pub fn transfer_admin(ctx: Context<TransferAdmin>, new_admin: Pubkey) -> Result<()> {
-        require!(new_admin != Pubkey::default(), CustomError::InvalidNewAdmin);
-        
-        let sale_account = &mut ctx.accounts.btb_sale_account;
-        
-        // Verify current signer is the admin
-        require!(
-            ctx.accounts.signer.key() == sale_account.owner_initialize_wallet,
-            CustomError::Unauthorized
-        );
-    
-        // Update the admin
-        sale_account.owner_initialize_wallet = new_admin;
-        
+        sale_account.is_sale_active = true;
         Ok(())
     }
 
     pub fn toggle_sale(ctx: Context<UpdateData>) -> Result<()> {
+        let program_data = ctx.accounts.program_data.try_borrow_data()?;
+        let upgrade_authority = Pubkey::new_from_array(program_data[13..45].try_into().unwrap());
+        require!(ctx.accounts.signer.key() == upgrade_authority, CustomError::UnauthorizedDeployer);
+
         let sale_account = &mut ctx.accounts.btb_sale_account;
-        
-        require!(
-            ctx.accounts.signer.key() == sale_account.owner_initialize_wallet,
-            CustomError::Unauthorized
-        );
-        
         sale_account.is_sale_active = !sale_account.is_sale_active;
-        
         Ok(())
     }
 
     pub fn emergency_withdraw(ctx: Context<EmergencyWithdraw>) -> Result<()> {
+        let program_data = ctx.accounts.program_data.try_borrow_data()?;
+        let upgrade_authority = Pubkey::new_from_array(program_data[13..45].try_into().unwrap());
+        require!(ctx.accounts.signer.key() == upgrade_authority, CustomError::UnauthorizedDeployer);
+
         let btb_sale_account = &ctx.accounts.btb_sale_account;
-        
-        require!(
-            ctx.accounts.signer.key() == btb_sale_account.owner_initialize_wallet,
-            CustomError::Unauthorized
-        );
-        
         let balance = ctx.accounts.btb_sale_token_account.amount;
-        
         require!(balance > 0, CustomError::NoTokensToWithdraw);
 
         token::transfer(
@@ -105,13 +86,15 @@ pub mod pda_vesting {
          owner_token_receive_wallet: Pubkey,
          btb_price: u64,
          vesting_price: u64
-        ) -> Result<()> {
+    ) -> Result<()> {
+        let program_data = ctx.accounts.program_data.try_borrow_data()?;
+        let upgrade_authority = Pubkey::new_from_array(program_data[13..45].try_into().unwrap());
+        require!(ctx.accounts.signer.key() == upgrade_authority, CustomError::UnauthorizedDeployer);
+
         require!(btb_price > 0, CustomError::ZeroBTBPrice);
         require!(vesting_price > 0, CustomError::ZeroVestingPrice);
 
         let sale_account = &mut ctx.accounts.btb_sale_account;
-        require!(ctx.accounts.signer.key() == sale_account.owner_initialize_wallet, CustomError::Unauthorized);
-
         sale_account.btb = btb;
         sale_account.usdt = usdt;
         sale_account.usdc = usdc;
@@ -209,6 +192,13 @@ pub struct Initialize<'info> {
         associated_token::authority = btb_sale_account
     )]
     pub btb_sale_token_account: Account<'info, TokenAccount>,
+    
+    /// CHECK: Program data account containing upgrade authority
+    #[account(
+        constraint = program_data.owner == &bpf_loader_upgradeable::ID
+    )]
+    pub program_data: AccountInfo<'info>,
+    
     pub btb_mint_account: Account<'info, Mint>,
     #[account(mut)]
     pub signer: Signer<'info>,
@@ -218,27 +208,18 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
-pub struct TransferAdmin<'info> {
-    #[account(
-        mut,
-        seeds = [b"btb-sale-account", btb_sale_account.owner_initialize_wallet.as_ref()],
-        bump
-    )]
-    pub btb_sale_account: Account<'info, InitializeDataAccount>,
-    
-    #[account(mut)]
-    pub signer: Signer<'info>,
-    
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
 pub struct EmergencyWithdraw<'info> {
     #[account(
         seeds = [b"btb-sale-account", btb_sale_account.owner_initialize_wallet.as_ref()],
         bump
     )]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
+    
+    /// CHECK: Program data account containing upgrade authority
+    #[account(
+        constraint = program_data.owner == &bpf_loader_upgradeable::ID
+    )]
+    pub program_data: AccountInfo<'info>,
     
     #[account(
         mut,
@@ -270,6 +251,13 @@ pub struct UpdateData<'info> {
         bump
     )]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
+    
+    /// CHECK: Program data account containing upgrade authority
+    #[account(
+        constraint = program_data.owner == &bpf_loader_upgradeable::ID
+    )]
+    pub program_data: AccountInfo<'info>,
+    
     #[account(mut)]
     pub signer: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -366,6 +354,6 @@ pub enum CustomError {
     #[msg("No tokens available to withdraw")]
     NoTokensToWithdraw,
 
-    #[msg("Cannot transfer admin to zero address")]
-    InvalidNewAdmin,
+    #[msg("Unauthorized: Only program deployer can initialize")]
+    UnauthorizedDeployer,
 }
