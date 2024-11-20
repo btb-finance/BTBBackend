@@ -16,7 +16,7 @@ export function loadWalletKey(keypairFile: string): web3.Keypair {
 const connection = new web3.Connection("https://api.devnet.solana.com");
 
 // Load initializer's keypair from wallet file
-const initializerKeypair = loadWalletKey("owner_signer_wallet.json");
+const initializerKeypair = loadWalletKey("knDJRLosVEfrnArkbYuHHtZg1wE5i1v4PT4sFoHYJQE.json");
 
 // Create wallet instance from keypair
 const initializerWallet = new Wallet(initializerKeypair);

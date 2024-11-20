@@ -4,7 +4,7 @@ use anchor_spl::{
     associated_token::AssociatedToken
 };
 
-declare_id!("kryDFGmTyAYxcBsJLjT9knXXgv8ExYbf5T3GAopdhCX");
+declare_id!("jj96gvB1CD4ei2pRQbCvsB8uHK71aKv1uEKMCKURsMb");
 
 #[program]
 pub mod pda_vesting {
