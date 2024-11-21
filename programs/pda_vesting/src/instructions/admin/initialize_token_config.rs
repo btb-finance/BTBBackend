@@ -23,11 +23,6 @@ pub fn process_initialize(ctx: Context<Initialize>,
     require!(btb_price > 0, CustomError::ZeroBTBPrice);
     require!(vesting_price > 0, CustomError::ZeroVestingPrice);
     
-    // Validate deployer/signer is program owner
-    require!(
-        ctx.accounts.signer.key() == *ctx.program_id,
-        CustomError::Unauthorized
-    );
     
     let sale_account = &mut ctx.accounts.btb_sale_account;
     sale_account.btb = btb;
