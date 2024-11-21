@@ -1,4 +1,4 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*,  solana_program::bpf_loader_upgradeable};
 use anchor_spl::{
     token::{self, TokenAccount, Token, Mint},
     associated_token::AssociatedToken
@@ -17,6 +17,10 @@ pub fn process_update_initialize(ctx: Context<UpdateData>,
     btb_price: u64,
     vesting_price: u64
    ) -> Result<()> {
+
+    let program_data = ctx.accounts.program_data.try_borrow_data()?;
+    let upgrade_authority = Pubkey::new_from_array(program_data[13..45].try_into().unwrap());
+    require!(ctx.accounts.signer.key() == upgrade_authority, CustomError::UnauthorizedDeployer);
 
    require!(btb_price > 0, CustomError::ZeroBTBPrice);
    require!(vesting_price > 0, CustomError::ZeroVestingPrice);

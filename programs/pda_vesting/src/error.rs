@@ -43,4 +43,7 @@ pub enum CustomError {
 
     #[msg("No tokens available to withdraw")]
     NoTokensToWithdraw,
+
+    #[msg("Unauthorized: Only program deployer can initialize")]
+    UnauthorizedDeployer,
 }

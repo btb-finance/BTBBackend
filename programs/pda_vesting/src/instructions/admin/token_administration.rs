@@ -26,6 +26,10 @@ pub fn transfer_admin(ctx: Context<TransferAdmin>, new_admin: Pubkey) -> Result<
 }
 
 pub fn process_toggle_sale(ctx: Context<UpdateData>) -> Result<()> {
+    let program_data = ctx.accounts.program_data.try_borrow_data()?;
+    let upgrade_authority = Pubkey::new_from_array(program_data[13..45].try_into().unwrap());
+    require!(ctx.accounts.signer.key() == upgrade_authority, CustomError::UnauthorizedDeployer);
+
     let sale_account = &mut ctx.accounts.btb_sale_account;
     
     // Only owner can toggle sale status
@@ -40,6 +44,11 @@ pub fn process_toggle_sale(ctx: Context<UpdateData>) -> Result<()> {
 }
 
 pub fn process_emergency_withdraw(ctx: Context<EmergencyWithdraw>) -> Result<()> {
+    
+    let program_data = ctx.accounts.program_data.try_borrow_data()?;
+    let upgrade_authority = Pubkey::new_from_array(program_data[13..45].try_into().unwrap());
+    require!(ctx.accounts.signer.key() == upgrade_authority, CustomError::UnauthorizedDeployer);
+    
     let btb_sale_account = &ctx.accounts.btb_sale_account;
     
     // Enhanced owner validation

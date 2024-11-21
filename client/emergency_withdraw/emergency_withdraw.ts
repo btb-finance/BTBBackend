@@ -32,6 +32,12 @@ const program = new Program<PdaVesting>(idlString, provider);
 async function main() {
     // BTB token mint address on devnet
     const btbMint = new web3.PublicKey("btbVv5dmAjutpRRSr6DKwBPyPyfKiJw4eXU11BPuTCK");
+
+    
+    const [programDataAddress] = web3.PublicKey.findProgramAddressSync(
+        [program.programId.toBuffer()],
+        new web3.PublicKey('BPFLoaderUpgradeab1e11111111111111111111111')
+    );
     
     // Derive PDA for BTB sale account
     const [btbSaleAccount] = await web3.PublicKey.findProgramAddress(
@@ -69,6 +75,7 @@ async function main() {
             ownerBtbAccount: ownerBtbAccount,
             btbMintAccount: btbMint,
             signer: ownerWallet.publicKey,
+            programData: programDataAddress,
             systemProgram: web3.SystemProgram.programId,
             tokenProgram: TOKEN_PROGRAM_ID
         })

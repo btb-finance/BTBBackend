@@ -16,7 +16,7 @@ export function loadWalletKey(keypairFile: string): web3.Keypair {
 const connection = new web3.Connection("https://api.devnet.solana.com");
 
 // Load initializer's keypair from wallet file
-const initializerKeypair = loadWalletKey("owner_signer_wallet.json");
+const initializerKeypair = loadWalletKey("knDJRLosVEfrnArkbYuHHtZg1wE5i1v4PT4sFoHYJQE.json");
 
 // Create wallet instance from keypair
 const initializerWallet = new Wallet(initializerKeypair);
@@ -30,6 +30,22 @@ const idlString = JSON.parse(JSON.stringify(idl));
 const program = new Program<PdaVesting>(idlString, provider);
 
 async function main() {
+    // Get program data account address
+    const [programDataAddress] = web3.PublicKey.findProgramAddressSync(
+        [program.programId.toBuffer()],
+        new web3.PublicKey('BPFLoaderUpgradeab1e11111111111111111111111')
+    );
+
+    console.log("Program Data Account:", programDataAddress.toString());
+    
+    const programDataAccountInfo = await connection.getAccountInfo(programDataAddress);
+    if (programDataAccountInfo) {
+            const upgradeAuthorityAddress = new web3.PublicKey(programDataAccountInfo.data.slice(13, 45));
+            console.log("Upgrade Authority:", upgradeAuthorityAddress.toString());
+    }
+
+    console.log("Loaded wallet public key:", initializerKeypair.publicKey.toString());
+
     // Derive PDA (Program Derived Address) for BTB sale account using seed "btb-sale-account"
     const [btbSaleAccount] = await web3.PublicKey.findProgramAddress(
         [Buffer.from("btb-sale-account"), initializerKeypair.publicKey.toBuffer()],
@@ -38,6 +54,7 @@ async function main() {
     
     // Log btbSaleAccount address
     console.log("BTB Sale Account (PDA):", btbSaleAccount.toString());
+
 
     // BTB token mint address on devnet
     const btbMint = new web3.PublicKey("btbVv5dmAjutpRRSr6DKwBPyPyfKiJw4eXU11BPuTCK");
@@ -62,7 +79,7 @@ async function main() {
     const vesting_price = new BN(8.08);   // Vesting price
 
     try {
-        //Initialize the BTB sale program with configuration
+        // Initialize the BTB sale program with configuration
         const tx = await program.methods.initialize(
             btb,                        // btb
             usdt,                       // USDT mint
@@ -76,7 +93,8 @@ async function main() {
             btbSaleAccount: btbSaleAccount,                   // PDA account
             btbSaleTokenAccount: btbSaleTokenAccount,         // Token account for PDA
             btbMintAccount: btbMint,                         // BTB mint
-            signer: initializerWallet.publicKey,              // Owner
+            programData: programDataAddress,                  // Program data account
+            signer: initializerWallet.publicKey,             // Owner
             systemProgram: web3.SystemProgram.programId,     // System program ID
             tokenProgram: TOKEN_PROGRAM_ID,                  // Token program ID
             associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID, // Associated token program ID
@@ -103,10 +121,9 @@ async function main() {
         console.log("BTB Price (formatted):", accountInfo.btbPrice.toNumber() / 1_000_000, "USDT");
         console.log("Vesting Price (raw):", accountInfo.vestingPrice.toString());
         console.log("Vesting Price (formatted):", accountInfo.vestingPrice.toNumber() / 1_000_000, "USDT");
-        
-        console.log("\nSales:");
-        console.log("Sales Status (raw):", accountInfo.isSaleActive.toString());
 
+        console.log("\nSales:");
+        console.log("Sales Status:", accountInfo.isSaleActive);
         
     } catch (error) {
         console.error("Error during initialization:", error);
