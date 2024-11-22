@@ -5,14 +5,14 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-pda_vesting = "abcxGrLevAiSMXHnzaasyrKwU4D58w8Ab5KBA9fcrWj"
+pda_vesting = "418q3oDXCyZ6H9i4YDYKABaog4Lfpdmc3zk6A24n7wZ3"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "Devnet"
-wallet = "~/.config/solana/id.json"
+wallet = "b7doByN6f3VyrV26aVA3TeNUuMFJ7w22sbUDaK3QNx4.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
