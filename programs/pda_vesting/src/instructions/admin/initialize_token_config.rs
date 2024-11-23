@@ -23,6 +23,7 @@ pub fn process_initialize(ctx: Context<Initialize>,
     require!(btb_price > 0, CustomError::ZeroBTBPrice);
     require!(vesting_price > 0, CustomError::ZeroVestingPrice);
     
+
     
     let sale_account = &mut ctx.accounts.btb_sale_account;
     sale_account.btb = btb;

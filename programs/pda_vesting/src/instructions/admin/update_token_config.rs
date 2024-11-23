@@ -26,7 +26,6 @@ pub fn process_update_initialize(ctx: Context<UpdateData>,
    require!(vesting_price > 0, CustomError::ZeroVestingPrice);
 
    let sale_account = &mut ctx.accounts.btb_sale_account;
-   require!(ctx.accounts.signer.key() == sale_account.owner_initialize_wallet, CustomError::Unauthorized);
 
    sale_account.btb = btb;
    sale_account.usdt = usdt;

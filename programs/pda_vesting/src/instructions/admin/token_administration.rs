@@ -10,20 +10,7 @@ use crate::initialize_data_account::InitializeDataAccount;
 use crate::emergency_withdraw::EmergencyWithdraw;
 use crate::update_data::UpdateData;
 
-pub fn transfer_admin(ctx: Context<TransferAdmin>, new_admin: Pubkey) -> Result<()> {
-    require!(new_admin != Pubkey::default(), CustomError::InvalidNewAdmin);
-    
-    let sale_account = &mut ctx.accounts.btb_sale_account;
-    
-    // Verify current signer is the admin
-    require!(
-        ctx.accounts.signer.key() == sale_account.owner_initialize_wallet,
-        CustomError::Unauthorized
-    );
 
-    sale_account.owner_initialize_wallet = new_admin;
-    Ok(())
-}
 
 pub fn process_toggle_sale(ctx: Context<UpdateData>) -> Result<()> {
     let program_data = ctx.accounts.program_data.try_borrow_data()?;
@@ -32,12 +19,7 @@ pub fn process_toggle_sale(ctx: Context<UpdateData>) -> Result<()> {
 
     let sale_account = &mut ctx.accounts.btb_sale_account;
     
-    // Only owner can toggle sale status
-    require!(
-        ctx.accounts.signer.key() == sale_account.owner_initialize_wallet
-        && sale_account.owner_initialize_wallet == *ctx.program_id,
-        CustomError::Unauthorized
-    );
+    
     
     sale_account.is_sale_active = !sale_account.is_sale_active;
     Ok(())
@@ -51,12 +33,7 @@ pub fn process_emergency_withdraw(ctx: Context<EmergencyWithdraw>) -> Result<()>
     
     let btb_sale_account = &ctx.accounts.btb_sale_account;
     
-    // Enhanced owner validation
-    require!(
-        ctx.accounts.signer.key() == btb_sale_account.owner_initialize_wallet
-        && btb_sale_account.owner_initialize_wallet == *ctx.program_id,
-        CustomError::Unauthorized
-    );
+   
     
     let balance = ctx.accounts.btb_sale_token_account.amount;
     require!(balance > 0, CustomError::NoTokensToWithdraw);
