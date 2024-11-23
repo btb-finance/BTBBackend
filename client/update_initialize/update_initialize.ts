@@ -30,6 +30,13 @@ const idlString = JSON.parse(JSON.stringify(idl));
 const program = new Program<PdaVesting>(idlString, provider);
 
 async function main() {
+
+    const [programDataAddress] = web3.PublicKey.findProgramAddressSync(
+        [program.programId.toBuffer()],
+        new web3.PublicKey('BPFLoaderUpgradeab1e11111111111111111111111')
+    );
+
+
     // Derive PDA (Program Derived Address) for BTB sale account using seed "btb-sale-account"
     const [btbSaleAccount] = await web3.PublicKey.findProgramAddress(
         [Buffer.from("btb-sale-account"), initializerKeypair.publicKey.toBuffer()],
@@ -73,9 +80,10 @@ async function main() {
             vesting_price              // Vesting price
         )
         .accounts({
-            btbSaleAccount: btbSaleAccount,                   // PDA account
-            signer: initializerWallet.publicKey,              // Owner
-            systemProgram: web3.SystemProgram.programId,     // System program ID
+            btbSaleAccount,
+            programData: programDataAddress,
+            signer: initializerWallet.publicKey,
+            systemProgram: web3.SystemProgram.programId,
         })
         .signers([initializerKeypair])  // Add initializer as transaction signer
         .rpc();
@@ -102,6 +110,7 @@ async function main() {
 
         console.log("\nSales:");
         console.log("Sales Status :", accountInfo.isSaleActive.toString());
+
 
     } catch (error) {
         console.error("Error during initialization:", error);

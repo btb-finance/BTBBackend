@@ -1,52 +1,57 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     token::{self, TokenAccount, Token, Mint},
-    associated_token::AssociatedToken
+    associated_token::AssociatedToken,
 };
-
 use crate::error::CustomError;
 use crate::initialize_data_account::InitializeDataAccount;
 
 pub fn process_buy_token(ctx: Context<BuyToken>, amount: u64, token_type: u8) -> Result<()> {
-    
-    // Check if sale is active
+
     require!(
         ctx.accounts.btb_sale_account.is_sale_active,
         CustomError::SaleNotActive
     );
-
+    
+  
     require!(amount > 0, CustomError::InvalidAmount);
     require!(token_type >= 1 && token_type <= 3, CustomError::InvalidTokenType);
+    require!(amount >= 1_000, CustomError::AmountTooSmall);
     
     let btb_sale_account = &ctx.accounts.btb_sale_account;
     
-    let stored_price = btb_sale_account.btb_price;
-
-    // Calculate BTB tokens to send to user
-    let btb_amount = (amount as u128)
-        .checked_mul(1_000_000_000)  
-        .ok_or(CustomError::CalculationError)?
-        .checked_div(stored_price as u128)  
-        .ok_or(CustomError::CalculationError)? as u64;
-
-    
-    require!(
-        amount >= 1_000, 
-        CustomError::AmountTooSmall
-    );
-    
+   
     let expected_mint = match token_type {
         1 => btb_sale_account.usdt,
         2 => btb_sale_account.usdc,
         3 => btb_sale_account.paypal_usd,
         _ => return Err(CustomError::InvalidTokenType.into()),
     };
-    
     require!(
         ctx.accounts.user_token_account.mint == expected_mint,
         CustomError::InvalidTokenMint
     );
-
+    
+    
+    require!(
+        ctx.accounts.user_token_account.amount >= amount,
+        CustomError::InsufficientUserBalance
+    );
+    
+    
+    let btb_amount = (amount as u128)
+        .checked_mul(1_000_000_000)
+        .ok_or(CustomError::CalculationError)?
+        .checked_div(btb_sale_account.btb_price as u128)
+        .ok_or(CustomError::CalculationError)? as u64;
+    
+   
+    require!(
+        ctx.accounts.btb_sale_token_account.amount >= btb_amount,
+        CustomError::InsufficientBTBBalance
+    );
+    
+    
     token::transfer(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
@@ -59,7 +64,7 @@ pub fn process_buy_token(ctx: Context<BuyToken>, amount: u64, token_type: u8) ->
         amount,
     )?;
     
-    // Transfer BTB tokens to user
+   
     token::transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
@@ -70,16 +75,15 @@ pub fn process_buy_token(ctx: Context<BuyToken>, amount: u64, token_type: u8) ->
             },
             &[&[
                 b"btb-sale-account",
-                btb_sale_account.owner_initialize_wallet.as_ref(),  
+                btb_sale_account.owner_initialize_wallet.as_ref(),
                 &[ctx.bumps.btb_sale_account],
             ]],
         ),
-        btb_amount,  // Changed from amount to btb_amount
+        btb_amount,
     )?;
     
     Ok(())
 }
-
 
 #[derive(Accounts)]
 pub struct BuyToken<'info> {

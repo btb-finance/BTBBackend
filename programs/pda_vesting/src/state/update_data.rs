@@ -1,4 +1,4 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*,  solana_program::bpf_loader_upgradeable};
 use crate::initialize_data_account::InitializeDataAccount;
 
 #[derive(Accounts)]
@@ -9,6 +9,13 @@ pub struct UpdateData<'info> {
         bump
     )]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
+    
+     /// CHECK: Program data account containing upgrade authority
+     #[account(
+        constraint = program_data.owner == &bpf_loader_upgradeable::ID
+    )]
+    pub program_data: AccountInfo<'info>,
+  
     #[account(mut)]
     pub signer: Signer<'info>,
     pub system_program: Program<'info, System>,
