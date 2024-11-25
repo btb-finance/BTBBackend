@@ -10,3 +10,4 @@ pub mod emergency_withdraw;
 pub use emergency_withdraw::*;
 
 pub mod update_data;
+pub use update_data::*;

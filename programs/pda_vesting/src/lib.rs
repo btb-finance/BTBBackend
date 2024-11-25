@@ -18,7 +18,7 @@ pub mod pda_vesting {
         usdt: Pubkey,
         usdc: Pubkey,
         paypal_usd: Pubkey,
-        team_wallet: Pubkey,
+        owner_token_receive_wallet: Pubkey,
         btb_price: u64,
         vesting_price: u64
     ) -> Result<()> {
@@ -28,7 +28,7 @@ pub mod pda_vesting {
             usdt,
             usdc,
             paypal_usd,
-            team_wallet,
+            owner_token_receive_wallet,
             btb_price,
             vesting_price
         )
@@ -40,7 +40,7 @@ pub mod pda_vesting {
         usdt: Pubkey,
         usdc: Pubkey,
         paypal_usd: Pubkey,
-        team_wallet: Pubkey,
+        owner_token_receive_wallet: Pubkey,
         btb_price: u64,
         vesting_price: u64
     ) -> Result<()> {
@@ -50,7 +50,7 @@ pub mod pda_vesting {
             usdt,
             usdc,
             paypal_usd,
-            team_wallet,
+            owner_token_receive_wallet,
             btb_price,
             vesting_price
         )

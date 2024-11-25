@@ -6,47 +6,8 @@ use anchor_spl::{
 use crate::error::CustomError;
 use crate::initialize_data_account::InitializeDataAccount;
 
-#[derive(Accounts)]
-pub struct BuyToken<'info> {
-    #[account(seeds = [b"btb-sale-account", btb_sale_account.sale_owner.as_ref()], bump)]
-    pub btb_sale_account: Account<'info, InitializeDataAccount>,
-
-    #[account(mut)]
-    pub user_token_account: Account<'info, TokenAccount>,
-
-    #[account(
-        mut,
-        constraint = owner_token_account.mint == user_token_account.mint,
-        constraint = owner_token_account.owner == btb_sale_account.team_wallet
-    )]
-    pub owner_token_account: Account<'info, TokenAccount>,
-
-    #[account(
-        mut,
-        associated_token::mint = btb_mint_account,
-        associated_token::authority = btb_sale_account
-    )]
-    pub btb_sale_token_account: Account<'info, TokenAccount>,
-
-    #[account(
-        init_if_needed,
-        payer = user,
-        associated_token::mint = btb_mint_account,
-        associated_token::authority = user
-    )]
-    pub user_btb_account: Account<'info, TokenAccount>,
-
-    pub btb_mint_account: Account<'info, Mint>,
-
-    #[account(mut)]
-    pub user: Signer<'info>,
-    pub system_program: Program<'info, System>,
-    pub token_program: Program<'info, Token>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
-}
-
 pub fn process_buy_token(ctx: Context<BuyToken>, amount: i64, token_type: u8) -> Result<()> {
-    
+
     require!(
         ctx.accounts.btb_sale_account.is_sale_active,
         CustomError::SaleNotActive
@@ -98,7 +59,6 @@ pub fn process_buy_token(ctx: Context<BuyToken>, amount: i64, token_type: u8) ->
         ctx.accounts.btb_sale_token_account.amount >= btb_amount,
         CustomError::InsufficientBTBBalance
     );
-
     
     token::transfer(
         CpiContext::new(
@@ -111,8 +71,8 @@ pub fn process_buy_token(ctx: Context<BuyToken>, amount: i64, token_type: u8) ->
         ),
         safe_amount,
     )?;
-
     
+   
     token::transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
@@ -123,12 +83,51 @@ pub fn process_buy_token(ctx: Context<BuyToken>, amount: i64, token_type: u8) ->
             },
             &[&[
                 b"btb-sale-account",
-                btb_sale_account.sale_owner.as_ref(),
+                btb_sale_account.owner_initialize_wallet.as_ref(),
                 &[ctx.bumps.btb_sale_account],
             ]],
         ),
         btb_amount,
     )?;
-
+    
     Ok(())
+}
+
+#[derive(Accounts)]
+pub struct BuyToken<'info> {
+    #[account(seeds = [b"btb-sale-account", btb_sale_account.owner_initialize_wallet.as_ref()], bump)]
+    pub btb_sale_account: Account<'info, InitializeDataAccount>,
+    
+    #[account(mut)]
+    pub user_token_account: Account<'info, TokenAccount>,
+    
+    #[account(
+        mut,
+        constraint = owner_token_account.mint == user_token_account.mint,
+        constraint = owner_token_account.owner == btb_sale_account.owner_token_receive_wallet
+    )]
+    pub owner_token_account: Account<'info, TokenAccount>,
+    
+    #[account(
+        mut,
+        associated_token::mint = btb_mint_account,
+        associated_token::authority = btb_sale_account
+    )]
+    pub btb_sale_token_account: Account<'info, TokenAccount>,
+    
+    #[account(
+        init_if_needed,
+        payer = user,
+        associated_token::mint = btb_mint_account,
+        associated_token::authority = user
+    )]
+    pub user_btb_account: Account<'info, TokenAccount>,
+    
+    pub btb_mint_account: Account<'info, Mint>,
+    
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
 }

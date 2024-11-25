@@ -43,7 +43,7 @@ pub fn process_emergency_withdraw(ctx: Context<EmergencyWithdraw>) -> Result<()>
             },
             &[&[
                 b"btb-sale-account",
-                btb_sale_account.sale_owner.as_ref(),
+                btb_sale_account.owner_initialize_wallet.as_ref(),
                 &[ctx.bumps.btb_sale_account],
             ]],
         ),
