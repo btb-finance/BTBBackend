@@ -23,7 +23,7 @@ pub enum CustomError {
     #[msg("Amount must be greater than zero")]
     InvalidAmount,
     
-    #[msg("Amount is too small. Minimum amount is 0.001 tokens")]
+    #[msg("Amount is too small. Minimum amount is 1 tokens")]
     AmountTooSmall,
     
     #[msg("Amount exceeds maximum limit")]

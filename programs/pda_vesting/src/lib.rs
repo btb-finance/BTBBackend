@@ -6,7 +6,7 @@ mod error;
 pub mod instructions;
 mod state;
 
-declare_id!("418q3oDXCyZ6H9i4YDYKABaog4Lfpdmc3zk6A24n7wZ3");
+declare_id!("ku52ZNbaQBkMaQ58pQgZ9xUkTNwpeMWnjZMmLjXYKKp");
 
 #[program]
 pub mod pda_vesting {
@@ -18,7 +18,7 @@ pub mod pda_vesting {
         usdt: Pubkey,
         usdc: Pubkey,
         paypal_usd: Pubkey,
-        owner_token_receive_wallet: Pubkey,
+        team_wallet: Pubkey,
         btb_price: u64,
         vesting_price: u64
     ) -> Result<()> {
@@ -28,7 +28,7 @@ pub mod pda_vesting {
             usdt,
             usdc,
             paypal_usd,
-            owner_token_receive_wallet,
+            team_wallet,
             btb_price,
             vesting_price
         )
@@ -40,7 +40,7 @@ pub mod pda_vesting {
         usdt: Pubkey,
         usdc: Pubkey,
         paypal_usd: Pubkey,
-        owner_token_receive_wallet: Pubkey,
+        team_wallet: Pubkey,
         btb_price: u64,
         vesting_price: u64
     ) -> Result<()> {
@@ -50,7 +50,7 @@ pub mod pda_vesting {
             usdt,
             usdc,
             paypal_usd,
-            owner_token_receive_wallet,
+            team_wallet,
             btb_price,
             vesting_price
         )
@@ -58,7 +58,7 @@ pub mod pda_vesting {
 
     pub fn buy_token(
         ctx: Context<BuyToken>,
-        amount: u64,
+        amount: i64,
         token_type: u8
     ) -> Result<()> {
         process_buy_token(ctx, amount, token_type)

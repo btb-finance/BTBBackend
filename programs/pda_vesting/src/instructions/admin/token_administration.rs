@@ -1,12 +1,7 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{
-    token::{self, TokenAccount, Token, Mint},
-    associated_token::AssociatedToken
-};
+use anchor_spl::token; 
 
-use crate::transfer_admin::TransferAdmin;
 use crate::error::CustomError;
-use crate::initialize_data_account::InitializeDataAccount;
 use crate::emergency_withdraw::EmergencyWithdraw;
 use crate::update_data::UpdateData;
 
@@ -48,7 +43,7 @@ pub fn process_emergency_withdraw(ctx: Context<EmergencyWithdraw>) -> Result<()>
             },
             &[&[
                 b"btb-sale-account",
-                btb_sale_account.owner_initialize_wallet.as_ref(),
+                btb_sale_account.sale_owner.as_ref(),
                 &[ctx.bumps.btb_sale_account],
             ]],
         ),

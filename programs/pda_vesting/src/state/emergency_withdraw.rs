@@ -1,13 +1,12 @@
 use anchor_lang::{prelude::*,  solana_program::bpf_loader_upgradeable};
 use anchor_spl::{
-    token::{self, TokenAccount, Token, Mint},
-    associated_token::AssociatedToken
+    token::{TokenAccount, Token, Mint}
 };
 use crate::initialize_data_account::InitializeDataAccount;
 
 #[derive(Accounts)]
 pub struct EmergencyWithdraw<'info> {
-    #[account(seeds = [b"btb-sale-account", btb_sale_account.owner_initialize_wallet.as_ref()], bump)]
+    #[account(seeds = [b"btb-sale-account", btb_sale_account.sale_owner.as_ref()], bump)]
     pub btb_sale_account: Account<'info, InitializeDataAccount>,
     
         /// CHECK: Program data account containing upgrade authority

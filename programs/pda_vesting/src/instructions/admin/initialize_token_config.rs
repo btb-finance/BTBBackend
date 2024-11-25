@@ -1,6 +1,6 @@
 use anchor_lang::{prelude::*,  solana_program::bpf_loader_upgradeable};
 use anchor_spl::{
-    token::{self, TokenAccount, Token, Mint},
+    token::{TokenAccount, Token, Mint},
     associated_token::AssociatedToken
 };
 
@@ -12,7 +12,7 @@ pub fn process_initialize(ctx: Context<Initialize>,
     usdt: Pubkey, 
     usdc: Pubkey, 
     paypal_usd: Pubkey, 
-    owner_token_receive_wallet: Pubkey,
+    team_wallet: Pubkey,
     btb_price: u64, 
     vesting_price: u64
 ) -> Result<()> {
@@ -30,8 +30,8 @@ pub fn process_initialize(ctx: Context<Initialize>,
     sale_account.usdt = usdt;
     sale_account.usdc = usdc;
     sale_account.paypal_usd = paypal_usd;
-    sale_account.owner_token_receive_wallet = owner_token_receive_wallet;
-    sale_account.owner_initialize_wallet = ctx.accounts.signer.key();
+    sale_account.team_wallet = team_wallet; 
+    sale_account.sale_owner = ctx.accounts.signer.key();
     sale_account.btb_price = btb_price;
     sale_account.vesting_price = vesting_price;
     sale_account.is_sale_active = true;
