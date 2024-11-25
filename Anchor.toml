@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-pda_vesting = "418q3oDXCyZ6H9i4YDYKABaog4Lfpdmc3zk6A24n7wZ3"
+pda_vesting = "ku52ZNbaQBkMaQ58pQgZ9xUkTNwpeMWnjZMmLjXYKKp"
 
 [registry]
 url = "https://api.apr.dev"
