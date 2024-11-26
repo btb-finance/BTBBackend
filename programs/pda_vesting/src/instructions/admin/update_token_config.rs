@@ -30,4 +30,3 @@ pub fn process_update_initialize(ctx: Context<UpdateData>,
    sale_account.vesting_price = vesting_price;
    Ok(())
 }
-
