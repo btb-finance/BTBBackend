@@ -4,15 +4,15 @@
 resolution = true
 skip-lint = false
 
-[programs.localnet]
-btb_project = "Ch6gqgXUC7TsVroSGDF2pLfv4Bd4bM3cvpEJXZf3WYyC"
+[programs.devnet]
+pda_vesting = "418q3oDXCyZ6H9i4YDYKABaog4Lfpdmc3zk6A24n7wZ3"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
-wallet = "~/.config/solana/id.json"
+cluster = "Devnet"
+wallet = "/Users/macos/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
