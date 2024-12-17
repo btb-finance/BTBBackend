@@ -1,0 +1,148 @@
+import * as anchor from "@coral-xyz/anchor";
+import { Program } from "@coral-xyz/anchor";
+import { BtbLp } from "../target/types/btb_lp";
+import { 
+  PublicKey, 
+  SystemProgram, 
+  SYSVAR_RENT_PUBKEY,
+  ComputeBudgetProgram
+} from "@solana/web3.js";
+import { 
+  TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID
+} from "@solana/spl-token";
+import BN from "bn.js";
+import { SqrtPriceMath } from "@raydium-io/raydium-sdk";
+
+describe("btb_lp", () => {
+  anchor.setProvider(anchor.AnchorProvider.env());
+  const provider = anchor.getProvider();
+  const owner = anchor.Wallet.local().payer;
+  const program = anchor.workspace.BtbLp as Program<BtbLp>;
+
+  // Constants
+  const CLMM_PROGRAM_ID = new PublicKey("devi51mZmdwUJGU9hjN27vEz64Gps7uUefqxg27EAtH");
+  const AMM_CONFIG = new PublicKey("CQYbhr6amxUER4p5SC44C63R4qw4NFc9Z4Db9vF4tZwG");
+
+  // Test state
+  let token0: PublicKey;
+  let token1: PublicKey;
+  let poolState: PublicKey;
+  let observationState: PublicKey;
+  let token0Vault: PublicKey;
+  let token1Vault: PublicKey;
+  let tickArrayBitmap: PublicKey;
+  let bitmapExtension: PublicKey;
+
+  const confirmOptions = {
+    skipPreflight: true,
+  };
+
+  it("Set up token addresses", () => {
+    // Replace these addresses with your actual token addresses
+    token0 = new PublicKey("avL98LDPWjSbjrPWHCKsBxME5Kxv71EgDYcntsFJpr3");
+    token1 = new PublicKey("bNCGLffUzUrhCRsV8giNBF1vcDwpi1DEpxssk3tL3sp");
+
+    // Ensure token0 < token1
+    if (token0.toBuffer().compare(token1.toBuffer()) > 0) {
+      [token0, token1] = [token1, token0];
+    }
+
+    console.log("Using existing tokens:");
+    console.log("Token0:", token0.toString());
+    console.log("Token1:", token1.toString());
+  });
+
+  it("Initialize pool", async () => {
+    try {
+      // Find PDAs
+      const [poolPda] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from("pool"),
+          AMM_CONFIG.toBuffer(),
+          token0.toBuffer(),
+          token1.toBuffer(),
+        ],
+        CLMM_PROGRAM_ID
+      );
+      poolState = poolPda;
+
+      const [vault0] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from("pool_vault"),
+          poolState.toBuffer(),
+          token0.toBuffer(),
+        ],
+        CLMM_PROGRAM_ID
+      );
+      token0Vault = vault0;
+
+      const [vault1] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from("pool_vault"),
+          poolState.toBuffer(),
+          token1.toBuffer(),
+        ],
+        CLMM_PROGRAM_ID
+      );
+      token1Vault = vault1;
+
+      const [observation] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from("observation"),
+          poolState.toBuffer(),
+        ],
+        CLMM_PROGRAM_ID
+      );
+      observationState = observation;
+
+      const [bitmap] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from("pool_tick_array_bitmap_extension"),
+          poolState.toBuffer(),
+        ],
+        CLMM_PROGRAM_ID
+      );
+      tickArrayBitmap = bitmap;
+      bitmapExtension = bitmap;
+
+      // Initialize with price of 1
+      const initTick = 0;
+      const sqrtPriceX64 = SqrtPriceMath.getSqrtPriceX64FromTick(initTick);
+
+      const tx = await program.methods
+        .proxyInitialize(new BN(sqrtPriceX64.toString()), new BN(0))
+        .accounts({
+          clmmProgram: CLMM_PROGRAM_ID,
+          poolCreator: owner.publicKey,
+          ammConfig: AMM_CONFIG,
+          poolState: poolState,
+          tokenMint0: token0,
+          tokenMint1: token1,
+          tokenVault0: token0Vault,
+          tokenVault1: token1Vault,
+          observationState: observationState,
+          tickArrayBitmap: tickArrayBitmap,
+          tokenProgram0: TOKEN_PROGRAM_ID,
+          tokenProgram1: TOKEN_PROGRAM_ID,
+          systemProgram: SystemProgram.programId,
+          rent: SYSVAR_RENT_PUBKEY,
+        })
+        .remainingAccounts([
+          { pubkey: bitmapExtension, isSigner: false, isWritable: true },
+        ])
+        .preInstructions([
+          ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 }),
+        ])
+        .rpc(confirmOptions);
+
+      console.log("Pool initialized successfully!");
+      console.log("Pool State:", poolState.toString());
+      console.log("Transaction signature:", tx);
+
+    } catch (error) {
+      console.error("Error initializing pool:", error);
+      throw error;
+    }
+  });
+});
