@@ -1,0 +1,27 @@
+[[bin]]
+name = "fuzz_0"
+path = "fuzz_0/test_fuzz.rs"
+
+[package]
+name = "fuzz_tests"
+version = "0.1.0"
+description = "Created with Trident"
+edition = "2021"
+
+[dependencies]
+arbitrary = "1.3.0"
+assert_matches = "1.4.0"
+honggfuzz = "0.5.56"
+
+anchor-lang = {version = "0.30.1", features = ["init-if-needed"]}
+anchor-spl = "0.30.1"
+solana-sdk = "1.17"
+spl-token = "4.0"
+spl-associated-token-account = "2.0"
+
+[dependencies.trident-client]
+version = "0.8.1"
+
+[dependencies.pda_vesting]
+path = "../../programs/pda_vesting"
+
