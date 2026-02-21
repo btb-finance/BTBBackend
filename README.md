@@ -108,4 +108,4 @@ If you encounter any issues or have questions, please file an issue on our [GitH
 
 ---
 
-Made with ❤️ by the BTB Finance Team
+Made with ❤️ by the BTB Finance Team.
